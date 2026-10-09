@@ -8,7 +8,7 @@ function coke {
 		/bin/launchctl print gui/$(id -u)/local.caffeinate.keepalive &> /dev/null && printf 'Sleep disable desired.\n' || printf 'Naptime optional!\n'
 		unfunction _coke_status
 	}
-    # ファイルはこの帽子をかぶ必要がある。
+		# ファイルはこの帽子をかぶ必要がある。
 	local TMPSUFFIX='.plist' 
 	local ACTION="strap" 
 
