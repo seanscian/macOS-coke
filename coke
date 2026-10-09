@@ -1,0 +1,43 @@
+	# Run caffeinate as a launchctl job, but provide a quick off/on function.
+	# Still deciding if I want to move this permanently into
+	# ~/Library/LaunchAgents and have the script disable, but a more permanent-
+	# yet-flexible method is to leave it here and just invoke “coke” at the end 
+	# of .zshrc, or coke --status so I can choose on login.
+function coke {
+	function _coke_status {
+		/bin/launchctl print gui/$(id -u)/local.caffeinate.keepalive &> /dev/null && printf 'Sleep disable desired.\n' || printf 'Naptime optional!\n'
+		unfunction _coke_status
+	}
+    # ファイルはこの帽子をかぶ必要がある。
+	local TMPSUFFIX='.plist' 
+	local ACTION="strap" 
+
+	[[ $1 == "--status" ]] && _coke_status && return
+	[[ $1 == "-d" ]] && ACTION="out" 
+
+	/bin/launchctl boot${ACTION} gui/$(id -u) =(cat <<LAUNCHD_PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>KeepAlive</key>
+	<true/>
+	<key>Label</key>
+	<string>local.caffeinate.keepalive</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/usr/bin/caffeinate</string>
+		<string>-i</string>
+		<string>-s</string>
+		<string>-d</string>
+	</array>
+	<key>StandardErrorPath</key>
+	<string>/dev/null</string>
+	<key>StandardOutPath</key>
+	<string>/dev/null</string>
+</dict>
+</plist>
+LAUNCHD_PLIST
+) 2> /dev/null
+	_coke_status
+}
